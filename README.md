@@ -8,11 +8,13 @@ The script is made to work with python 2.7.6 and tested on a MacBook Pro Yosemit
 
 Usage
 =====
-$autoremoteserver   [optional arguments]
-                    - help          - Write help information
-                    - regdevice     - Register new device(s)
-                    - reset         - Delete config files(autoremote.json & autoremotedevices.txt
-                    - resetdevice   - Delete devices file(autoremotedevices.txt)
+$autoremoteserver [optional arguments]
+
+Arguments:
+- help          - Write help information
+- regdevice     - Register new device(s)
+- reset         - Delete config files(autoremote.json & autoremotedevices.txt
+- resetdevice   - Delete devices file(autoremotedevices.txt)
 
 Thanks to
 =========
