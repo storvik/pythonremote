@@ -1,0 +1,356 @@
+#!/usr/bin/python
+import sys
+import requests
+import BaseHTTPServer
+import json
+import simplejson
+import urllib
+import os.path
+import string
+import random
+import socket
+import time
+import threading
+import argparse
+import re
+import cgi
+
+# Neat color function
+def color(this_color, string):
+    return "\033[" + this_color + "m" + string + "\033[0m"
+
+red = "31"
+yellow = "33"
+green = "32"
+
+def print_help():
+    print "Autoremote python plugin by Storvik"
+    print "Usage:\tautoremoteserver\t[optional arguments]"
+    print "\t\t\t\t- help        \t- Write help information"
+    print "\t\t\t\t- regdevice   \t- Register new device(s)"
+    print "\t\t\t\t- reset       \t- Delete config files(autoremote.json & autoremotedevices.txt"
+    print "\t\t\t\t- resetdevice \t- Delete devices file(autoremotedevices.txt)\n"
+    print "This is a python autoremote plugin. it is based on the autoremote c# program and autoremote android app by Joao Dias. \nThanks to:"
+    print "\t- Joao Dias for some much needed help with development"
+    print ""
+
+class device:
+    def __init__(self, id, name, type, localip, publicip, port, haswifi, ttl, collapsekey, key, sender, additional, communication_base_params):
+        self.id = id
+        self.name = name
+        self.type = type
+        self.localip = localip
+        self.publicip = publicip
+        self.port = port
+        self.haswifi = haswifi
+        self.ttl = ttl
+        self.collapsekey = collapsekey
+        self.key = key
+        self.sender = sender
+        self.additional = additional
+        self.communication_base_params = communication_base_params
+
+class additional:
+    def __init__(self, iconUrl, type, canreceivefiles):
+        self.iconUrl = iconUrl
+        self.type = type
+        self.canreceivefiles = canreceivefiles
+        
+class gcm_req: 
+    def __init__(self, key, sender, request):
+        self.key = key
+        self.sender = sender
+        self.request = request
+
+class comm_params:
+    def __init__(self, sender, type):
+        self.sender = sender
+        self.type = type
+
+#Functions for getting local ip
+if os.name != "nt":
+    import fcntl
+    import struct
+
+    def get_interface_ip(ifname):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        return socket.inet_ntoa(fcntl.ioctl(s.fileno(), 0x8915, struct.pack('256s', ifname[:15]))[20:24])
+
+def get_lan_ip():
+    ip = socket.gethostbyname(socket.gethostname())
+    if ip.startswith("127.") and os.name != "nt":
+        interfaces = [
+            "eth0",
+            "eth1",
+            "eth2",
+            "wlan0",
+            "wlan1",
+            "wifi0",
+            "ath0",
+            "ath1",
+            "ppp0",
+            ]
+        for ifname in interfaces:
+            try:
+                ip = get_interface_ip(ifname)
+                break
+            except IOError:
+                pass
+    return ip
+
+def get_pub_ip():
+    ip = {}
+    try: 
+        r = requests.get("http://ip.42.pl/raw")
+        ip = r.text
+    except:
+        print color(red,"ERROR could not get public ip...")
+        exit(-1)
+    return ip
+
+# Function for generating device key
+def key_generator(size=6, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
+# Function for creating server data 
+def initserver(dev, add, comm):
+    if os.path.isfile("autoremote.json"):
+        print color(green,"Autoremote config json file exists. Continuing server startup..")
+        jsondata = {}
+        fd = open("autoremote.json", 'r')
+        content = fd.read()
+        fd.close()
+        jsondata = simplejson.loads(content)
+        dev, add, comm = json_to_objects(jsondata,dev,add,comm)
+
+        lanip = get_lan_ip()
+        pubip = get_pub_ip()
+        change = "false"
+
+        if dev.localip == lanip:
+            print color(green,"LAN IP is up to date..")
+        else:
+            print color(yellow,"LAN IP is being updpated")
+            dev.localip = lanip
+            change = "true"
+
+        if dev.publicip == pubip:
+            print color(green,"Public IP is up to date..")
+        else:
+            print color(yellow,"Public IP is being updated")
+            dev.publicip = pubip
+            change = "true"
+
+        # Write json to file
+        if change == "true":
+            try: 
+                fd = open("autoremote.json", "w")
+                fd.write(jsondata)
+                fd.close()
+            except:
+                print color(red,"ERROR writing autoremote.json...")
+                exit(-1)
+
+    else:
+        print color(yellow,"Autoremote config json file doesnt exist.")
+        answr = raw_input(color(yellow, "Do you want to configure this device? [y/n] "))
+        if answr in ['y','yes','Y','YES']:
+
+            jsondata = initserver(dev, add, comm)
+
+            # Ask for needed parameters
+            dev.id = raw_input("Id: ")
+            dev.name = raw_input("Name: ")
+            dev.type = "plugin"
+            dev.localip = get_lan_ip()
+            dev.publicip = get_pub_ip()
+            dev.port = "1820"
+            dev.haswifi = "True"
+            dev.ttl = raw_input("TTL: ")
+            dev.collapsekey = raw_input("Collapsekey: ")
+            dev.sender = raw_input("Sender: ")
+            dev.key = key_generator(30)
+        
+            add.iconUrl = raw_input("Icon URL: ")
+            add.type = "PythonPlugin by Storvik"
+            add.canreceivefiles = "True"
+        
+            comm.sender = dev.sender
+            comm.type = "RequestSendRegistration"
+    
+            dev.additional = add    
+            dev.communication_base_params = comm
+            
+            # Convert objects/classes to json format
+            jsondata = (json.dumps(dev, default=jdefault, indent=4))
+        
+            # Write json to file
+            try: 
+                fd = open("autoremote.json", "w")
+                fd.write(jsondata)
+                fd.close()
+            except:
+                print color(red,"ERROR writing autoremote.json...")
+                exit(-1)
+                
+    return jsondata, dev, add, comm
+
+# Function for converting json string to device object
+def json_to_objects(jsondata,dev,add,comm):
+    dev = device(jsondata["id"],jsondata["name"],jsondata["type"],jsondata["localip"],jsondata["publicip"],jsondata["port"],jsondata["haswifi"],jsondata["ttl"],jsondata["collapsekey"],jsondata["key"],jsondata["sender"],"","")
+    add = additional(jsondata["additional"]["iconUrl"],jsondata["additional"]["type"],jsondata["additional"]["canreceivefiles"])
+    comm = comm_params(jsondata["communication_base_params"]["sender"],jsondata["communication_base_params"]["type"])
+    dev.additional = add
+    dev.communication_base_params = comm
+
+    return dev, add, comm
+
+# Function for making user defined json strings
+def jdefault(o):
+    return o.__dict__
+
+# Register new device to autoremotedevices.txt
+def register_device(host_name, dev, jsondata):
+    fd = open("autoremotedevices.txt", "w")                    # Opening device file
+    name = raw_input("Enter name for new device: ")
+    key = raw_input("Enter personal key: ")
+    fd.write(name+"\n"+key+"\n")
+    gcm = gcm_req(key, dev.sender, jsondata)                   # GCM register device message
+
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    r = requests.post("https://autoremotejoaomgcd.appspot.com/sendrequest", data=urllib.urlencode(gcm.__dict__), headers=headers)
+
+    if r.text == "OK":                                         # If message is sent
+        print color(green,"Register device request successfully sent to device!")
+    else:
+        print colot(red,"Couldn't send request. Aborting...")
+        exit(-1)
+
+    ####
+    # Todo: Add option to add multiple devices
+    ####
+
+    fd.close
+    print color(green,"Successfully added "+name+" to device list..")
+    #print color(red,"Something went wrong...")
+    #exit(-1) 
+
+def received_request(received):
+    print color(yellow,"You just reveiced something!")
+    print received
+    print "Sender: " + received["sender"]
+    print "Message: " + received["message"]
+    print "Autoremote version: " + received["version"]
+
+
+class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    def do_HEAD(s):
+        s.send_response(200)
+        s.send_header("Content-type", "text/html")
+        s.end_headers()
+    def do_GET(s):
+        """Respond to a GET request."""
+        s.send_response(200)
+        s.send_header("Content-type", "text/html")
+        s.end_headers()
+        s.wfile.write("<html><head><title>Pythonremote</title></head>")
+        s.wfile.write("<p> This is index of python autoremote server made by Storvik. Nothing can be done here, go play some other place! </p>")
+        s.wfile.write("</body></html>")
+        pprint (vars(s))
+    def do_POST(self):
+        if None != re.search('/', self.path):
+            ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
+            if ctype == 'application/json':
+                length = int(self.headers.getheader('content-length'))
+                data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
+
+                # For some reason a http post req results in four requests
+                # Extract one of them
+                global cnt
+                if cnt == 4:
+                    #print data # print raw data
+                    regex = re.compile("\{'([^;]+)\':")
+                    data = regex.findall(str(data))
+                    data = data[0].replace('""', '"Null"') # This to avoid those nasty unicode strings in empty fields
+                    received_request(simplejson.loads(data))
+                    cnt = 1
+                else:
+                    cnt = cnt + 1
+                    
+            else:
+                data = {}
+ 
+                self.send_response(200)
+                self.end_headers()
+        else:
+            self.send_response(403)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+
+# *************************** Main code below this point *************************** 
+
+# Define needed objects 
+dev = device("","","","","","","","","","","","","")
+add = additional("","","")
+comm = comm_params("","")
+
+# Check for imput arguments 
+if len(sys.argv) > 1:
+    if sys.argv[1] == "help":
+        print_help()
+        exit(-1)
+    elif sys.argv[1] == "regdevice":
+        print "regdivice"
+        exit(-1)
+    elif sys.argv[1] == "reset":
+        print "reset"
+        exit(-1)    
+    elif sys.argv[1] == "resetdevice":
+        print "resetdivice"
+        exit(-1)
+    else:
+        print color(red,"Unknown input parameter.. 'autoremoteserver help' for options and usage!")
+        exit(-1)
+
+print color(green,"Autoremote python plugin!!")
+
+# At startup check if config file exist. If not, create it
+jsondata, dev, add, comm = initserver(dev, add, comm)
+
+# Convert jsondata to objects
+#dev, add, comm = json_to_objects(jsondata,dev,add,comm) Not needed after changing the init function
+
+host_name = "https://autoremotejoaomgcd.appspot.com/"
+
+# Checking for devices in autoremotedevices.txt
+# This file contains all registered devices (phone,tablet,etc)
+if os.path.isfile("autoremotedevices.txt"):
+    print color(green,"Found registered devices. Continuing server startup..")
+    ####
+    # Todo: List devices and add option to add more devices
+    ####
+else:
+    print color(yellow,"Did not find any devices.")
+    answr = raw_input(color(yellow,"You want to add a device? [y/n] "))
+    if answr in ['y','yes','Y','YES']:
+        register_device(host_name, dev, jsondata)
+    else:
+        print color(red,"autoremote is useless with no devices registered. Aborting...")
+        exit(-1)
+
+
+
+HOST_NAME = ''
+PORT_NUMBER = int(dev.port)
+cnt = 1 # counter to get the right http post request
+
+if __name__ == '__main__':
+    server_class = BaseHTTPServer.HTTPServer
+    httpd = server_class((HOST_NAME, PORT_NUMBER), MyHandler)
+    print time.asctime(), "Autoremote server starts - Port: %s" % (PORT_NUMBER)
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    httpd.server_close()
+    print time.asctime(), "Autoremote server stops - Port: %s" % (PORT_NUMBER)
