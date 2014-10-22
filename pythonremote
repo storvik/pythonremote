@@ -150,6 +150,7 @@ def initserver(dev, add, comm):
             except:
                 print color(red,"ERROR writing autoremote.json...")
                 exit(-1)
+            register_device("https://autoremotejoaomgcd.appspot.com/", dev, jsondata)
 
     else:
         print color(yellow,"Autoremote config json file doesnt exist.")
