@@ -47,4 +47,4 @@ What must be improved/fixed/added:
 - Support adding of multiple devices. 
 - Add sending message to device. 
 - System for responding/reacting to a given message and adding/removing such actions.
-
+- Implement google API url shortener when registering a new device.
