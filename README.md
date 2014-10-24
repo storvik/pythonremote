@@ -9,6 +9,10 @@ The script is made to work with python 2.7.6 and tested on a MacBook Pro Yosemit
 
 [AutoRemote for Android (Google PlayStore)](https://play.google.com/store/apps/details?id=com.joaomgcd.autoremote&hl=de)
 
+Notification support for Mac OS X.
+Notifications are displayed as system notifications and must contain title and text.
+Optional fields: Icon and URL.
+
 Requirements
 ============
 
@@ -18,6 +22,8 @@ This script requires the following installed:
 - urllib
 - BaseHTTPServer
 
+Mac OSX:
+- [terminal-notifier](https://github.com/alloy/terminal-notifier). Install via gem install. 
 
 
 Usage
@@ -44,7 +50,9 @@ What does it do:
 - If json config file exists => read file and check if ip adresses have to be updated.
 - Asks user for a device if autoremotedevices.txt doesn't exist. 
 - Starts the server.
-- Prints autoremote requests to screen when received. 
+- Prints autoremote requests to screen when received.
+- Registers with notification support.
+- Notifications must have title and text. URL and icon is optional.
 
 What must be improved/fixed/added:
 - If autoremote request doesn't contain message a nasty error is printed.

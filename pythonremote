@@ -14,6 +14,8 @@ import threading
 import argparse
 import re
 import cgi
+import os
+import subprocess
 
 # Neat color function
 def color(this_color, string):
@@ -51,10 +53,11 @@ class device:
         self.communication_base_params = communication_base_params
 
 class additional:
-    def __init__(self, iconUrl, type, canreceivefiles):
+    def __init__(self, iconUrl, type, canreceivefiles, canReceiveNotifications):
         self.iconUrl = iconUrl
         self.type = type
         self.canreceivefiles = canreceivefiles
+        self.canReceiveNotifications = canReceiveNotifications
         
 class gcm_req: 
     def __init__(self, key, sender, request):
@@ -145,19 +148,17 @@ def initserver(dev, add, comm):
         if change == "true":
             try: 
                 fd = open("autoremote.json", "w")
-                fd.write(jsondata)
+                fd.write(json.dumps(dev, default=jdefault, indent=4))
                 fd.close()
             except:
                 print color(red,"ERROR writing autoremote.json...")
-                exit(-1)
-            register_device("https://autoremotejoaomgcd.appspot.com/", dev, jsondata)
+            exit(-1)
+            #register_device("https://autoremotejoaomgcd.appspot.com/", dev, jsondata)
 
     else:
         print color(yellow,"Autoremote config json file doesnt exist.")
         answr = raw_input(color(yellow, "Do you want to configure this device? [y/n] "))
         if answr in ['y','yes','Y','YES']:
-
-            jsondata = initserver(dev, add, comm)
 
             # Ask for needed parameters
             dev.id = raw_input("Id: ")
@@ -175,6 +176,7 @@ def initserver(dev, add, comm):
             add.iconUrl = raw_input("Icon URL: ")
             add.type = "PythonPlugin by Storvik"
             add.canreceivefiles = "True"
+            add.canReceiveNotifications = "True"
         
             comm.sender = dev.sender
             comm.type = "RequestSendRegistration"
@@ -184,7 +186,7 @@ def initserver(dev, add, comm):
             
             # Convert objects/classes to json format
             jsondata = (json.dumps(dev, default=jdefault, indent=4))
-        
+
             # Write json to file
             try: 
                 fd = open("autoremote.json", "w")
@@ -199,7 +201,7 @@ def initserver(dev, add, comm):
 # Function for converting json string to device object
 def json_to_objects(jsondata,dev,add,comm):
     dev = device(jsondata["id"],jsondata["name"],jsondata["type"],jsondata["localip"],jsondata["publicip"],jsondata["port"],jsondata["haswifi"],jsondata["ttl"],jsondata["collapsekey"],jsondata["key"],jsondata["sender"],"","")
-    add = additional(jsondata["additional"]["iconUrl"],jsondata["additional"]["type"],jsondata["additional"]["canreceivefiles"])
+    add = additional(jsondata["additional"]["iconUrl"],jsondata["additional"]["type"],jsondata["additional"]["canreceivefiles"],jsondata["additional"]["canReceiveNotifications"])
     comm = comm_params(jsondata["communication_base_params"]["sender"],jsondata["communication_base_params"]["type"])
     dev.additional = add
     dev.communication_base_params = comm
@@ -216,6 +218,7 @@ def register_device(host_name, dev, jsondata):
     name = raw_input("Enter name for new device: ")
     key = raw_input("Enter personal key: ")
     fd.write(name+"\n"+key+"\n")
+    print "Im here"
     gcm = gcm_req(key, dev.sender, jsondata)                   # GCM register device message
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -237,11 +240,32 @@ def register_device(host_name, dev, jsondata):
     #exit(-1) 
 
 def received_request(received):
-    print color(yellow,"You just reveiced something!")
+    f = open("autoremotedevices.txt","r")
+    devlist = f.read().split("\n")
+
+    #Check if unknown
+    if received["sender"] in devlist:
+        print color(yellow,"You just reveiced something from "+devlist[devlist.index(received["sender"])-1]+"!")
+    else:
+        print color(red,"You just received something from unknown device!!")
+        print color(red,"Device key: "+received["sender"])
+
+    if received["communication_base_params"]["type"] == "Notification":
+        notification(received)
+        
     print received
-    print "Sender: " + received["sender"]
-    print "Message: " + received["message"]
-    print "Autoremote version: " + received["version"]
+
+def notification(received):
+    print color(yellow,"Notification received")
+    notifi = ["terminal-notifier","-title",received["title"],"-subtitle","Pythonremote by Storvik","-message", received["text"],"-appIcon","https://lh5.ggpht.com/fQGeFGOUahclDOUsKU0d6F-Odg9D2jUB7xVnrH5KdeV1m8TcX_wdkbHTvKY2ZoIMgWj2=w300"]
+    if "icon" in received:
+        notifi = notifi.append("-contentImage")
+        notifi = notifi.append(received["icon"])
+    if "url" in received:
+        notifi.append("-open")
+        notifi.append(received["url"].replace("\\",""))
+
+    subprocess.call(notifi)
 
 
 class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -292,11 +316,17 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 # Define needed objects 
 dev = device("","","","","","","","","","","","","")
-add = additional("","","")
+add = additional("","","","")
 comm = comm_params("","")
 
-# Check for imput arguments 
-if len(sys.argv) > 1:
+# Check for input arguments 
+if len(sys.argv) == 3:
+    # Send message mode
+    print "Send message mode"
+elif len(sys.argv) == 4:
+    # Send notification mode
+    print "Send notification mode"
+elif len(sys.argv) > 1:
     if sys.argv[1] == "help":
         print_help()
         exit(-1)
@@ -355,3 +385,7 @@ if __name__ == '__main__':
         pass
     httpd.server_close()
     print time.asctime(), "Autoremote server stops - Port: %s" % (PORT_NUMBER)
+
+
+
+#http://icons.iconarchive.com/icons/osullivanluke/orb-os-x/512/OSX-icon.png
