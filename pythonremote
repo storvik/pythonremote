@@ -214,13 +214,48 @@ def jdefault(o):
 
 # Register new device to autoremotedevices.txt
 def register_device(host_name, dev, jsondata):
+    # Checking for devices in autoremotedevices.txt
+    # This file contains all registered devices (phone,tablet,etc)
+    if os.path.isfile("autoremotedevices.txt"):
+        print color(green,"Found registered devices. Continuing server startup..")
+    else:
+        print color(yellow,"Did not find any devices.")
+        answr = raw_input(color(yellow,"You want to add a device? [y/n] "))
+        if answr in ['y','yes','Y','YES']:
+            fd = open("autoremotedevices.txt", "w")                    # Opening device file
+            name = raw_input("Enter name for new device: ")
+            key = raw_input("Enter personal key: ")
+            fd.write(name+"\n"+key+"\n")
+
+            gcm = gcm_req(key, dev.sender, jsondata)                   # GCM register device message
+
+            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            r = requests.post("https://autoremotejoaomgcd.appspot.com/sendrequest", data=urllib.urlencode(gcm.__dict__), headers=headers)
+
+            if r.text == "OK":                                         # If message is sent
+                print color(green,"Register device request successfully sent to device!")
+            else:
+                print colot(red,"Couldn't send request. Aborting...")
+                exit(-1)
+                
+            fd.close
+            print color(green,"Successfully added "+name+" to device list..")
+            answr = raw_input(color(yellow,"You want to add another device? [y/n] "))
+            if answr in ['y','yes','Y','YES']:
+                register_new_device(host_name,dev,jsondata)
+                
+        else:
+            print color(red,"autoremote is useless with no devices registered. Aborting...")
+            exit(-1)
+
+def register_new_device(host_name, dev, jsondata):
     fd = open("autoremotedevices.txt", "w")                    # Opening device file
     name = raw_input("Enter name for new device: ")
     key = raw_input("Enter personal key: ")
     fd.write(name+"\n"+key+"\n")
-    print "Im here"
-    gcm = gcm_req(key, dev.sender, jsondata)                   # GCM register device message
 
+    gcm = gcm_req(key, dev.sender, jsondata)                   # GCM register device message
+    
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     r = requests.post("https://autoremotejoaomgcd.appspot.com/sendrequest", data=urllib.urlencode(gcm.__dict__), headers=headers)
 
@@ -229,15 +264,14 @@ def register_device(host_name, dev, jsondata):
     else:
         print colot(red,"Couldn't send request. Aborting...")
         exit(-1)
-
-    ####
-    # Todo: Add option to add multiple devices
-    ####
-
+                
     fd.close
     print color(green,"Successfully added "+name+" to device list..")
-    #print color(red,"Something went wrong...")
-    #exit(-1) 
+    answr = raw_input(color(yellow,"You want to add another device? [y/n] "))
+    if answr in ['y','yes','Y','YES']:
+        register_new_device(host_name,dev,jsondata)
+
+
 
 def received_request(received):
     f = open("autoremotedevices.txt","r")
@@ -330,6 +364,9 @@ dev = device("","","","","","","","","","","","","")
 add = additional("","","","")
 comm = comm_params("","")
 
+host_name = "https://autoremotejoaomgcd.appspot.com/"
+option = ""
+
 # Check for input arguments 
 if len(sys.argv) == 3:
     # Send message mode
@@ -338,21 +375,21 @@ elif len(sys.argv) == 4:
     # Send notification mode
     print "Send notification mode"
 elif len(sys.argv) > 1:
-    if sys.argv[1] == "help":
+    option = sys.argv[1]
+    if option == "help":
         print_help()
         exit(-1)
-    elif sys.argv[1] == "regdevice":
-        print "regdivice"
-        exit(-1)
-    elif sys.argv[1] == "reset":
+    elif option == "reset":
         print "reset"
         exit(-1)    
-    elif sys.argv[1] == "resetdevice":
+    elif option == "resetdevice":
         print "resetdivice"
         exit(-1)
     else:
         print color(red,"Unknown input parameter.. 'autoremoteserver help' for options and usage!")
         exit(-1)
+# Regdevice will be checked for further down. 
+# This because it depends on other key data
 
 print color(green,"Autoremote python plugin!!")
 
@@ -362,25 +399,10 @@ jsondata, dev, add, comm = initserver(dev, add, comm)
 # Convert jsondata to objects
 #dev, add, comm = json_to_objects(jsondata,dev,add,comm) Not needed after changing the init function
 
-host_name = "https://autoremotejoaomgcd.appspot.com/"
-
-# Checking for devices in autoremotedevices.txt
-# This file contains all registered devices (phone,tablet,etc)
-if os.path.isfile("autoremotedevices.txt"):
-    print color(green,"Found registered devices. Continuing server startup..")
-    ####
-    # Todo: List devices and add option to add more devices
-    ####
-else:
-    print color(yellow,"Did not find any devices.")
-    answr = raw_input(color(yellow,"You want to add a device? [y/n] "))
-    if answr in ['y','yes','Y','YES']:
-        register_device(host_name, dev, jsondata)
-    else:
-        print color(red,"autoremote is useless with no devices registered. Aborting...")
-        exit(-1)
-
-
+# Register new devices
+register_device(host_name, dev, jsondata)
+if option == "regdevice":
+    register_new_device(host_name, dev, jsondata)
 
 HOST_NAME = ''
 PORT_NUMBER = int(dev.port)

@@ -32,7 +32,7 @@ $autoremoteserver [optional arguments]
 
 Arguments:
 - help          - Write help information
-- regdevice     - Register new device(s) NOT WORKING YET
+- regdevice     - Register new device(s)
 - reset         - Delete config files(autoremote.json & autoremotedevices.txt NOT WORKING YET
 - resetdevice   - Delete devices file(autoremotedevices.txt) NOT WORKING YET
 
@@ -53,10 +53,10 @@ What does it do:
 - Prints autoremote requests to screen when received.
 - Registers with notification support.
 - Notifications must have title and text. URL and icon is optional.
+- Supports registering of multiple devices.
 
 What must be improved/fixed/added:
 - If autoremote request doesn't contain message a nasty error is printed.
-- Support adding of multiple devices. 
 - Add sending message to device. 
 - System for responding/reacting to a given message and adding/removing such actions.
 - Implement google API url shortener when registering a new device.
