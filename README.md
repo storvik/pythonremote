@@ -33,8 +33,8 @@ $autoremoteserver [optional arguments]
 Arguments:
 - help          - Write help information
 - regdevice     - Register new device(s)
-- reset         - Delete config files(autoremote.json & autoremotedevices.txt NOT WORKING YET
-- resetdevice   - Delete devices file(autoremotedevices.txt) NOT WORKING YET
+- reset         - Delete config files(autoremote.json & autoremotedevices.txt
+- resetdevice   - Delete devices file(autoremotedevices.txt)
 
 Thanks to
 =========
