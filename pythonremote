@@ -294,6 +294,17 @@ def notification(received):
     else:
         print color(red,"OS not supported..")
 
+# If massage, check for saved response
+def message_received(received):
+    print color(yellow,"Received message. Checking for saved response.")
+    #fd = open(filename, 'r+')
+    #commands = fd.read().split("\n")
+    #Some code
+    #fd.seek(0)
+    #fd.write(text)
+    #fd.truncate()
+    #fd.close()
+
 
 class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_HEAD(s):
