@@ -16,6 +16,7 @@ import re
 import cgi
 import os
 import subprocess
+import threading
 
 # Neat color function
 def color(this_color, string):
@@ -404,12 +405,12 @@ jsondata, dev, add, comm = initserver(dev, add, comm)
 register_device(host_name, dev, jsondata)
 if option == "regdevice":
     register_new_device(host_name, dev, jsondata)
-
+    
 HOST_NAME = ''
 PORT_NUMBER = int(dev.port)
 cnt = 1 # counter to get the right http post request
 
-if __name__ == '__main__':
+def http_server(HOST_NAME, PORT_NUMBER):
     server_class = BaseHTTPServer.HTTPServer
     httpd = server_class((HOST_NAME, PORT_NUMBER), MyHandler)
     print time.asctime(), "Autoremote server starts - Port: %s" % (PORT_NUMBER)
@@ -418,8 +419,21 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     httpd.server_close()
-    print time.asctime(), "Autoremote server stops - Port: %s" % (PORT_NUMBER)
+            
 
+if __name__ == '__main__':
+    t = threading.Thread(target=http_server, args = (HOST_NAME,PORT_NUMBER))
+    t.daemon = True
+    t.start()
+    # Wait for server to start
+    time.sleep(3)
+    print color(yellow,"To stop server enter q/quit.")
+    print color(yellow,"After some work, the user should be able to send messages from here.")
+    
+    indata = raw_input("You can send messages here: ")
+    if indata in ["q","quit"]:
+        print time.asctime(), "Autoremote server stops - Port: %s" % (PORT_NUMBER)
+        exit(-1)
 
 
 #http://icons.iconarchive.com/icons/osullivanluke/orb-os-x/512/OSX-icon.png
