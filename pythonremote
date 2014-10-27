@@ -254,8 +254,12 @@ def register_new_device(host_name, dev, jsondata):
     if answr in ['y','yes','Y','YES']:
         register_new_device(host_name,dev,jsondata)
 
-
-
+def load_devices():
+    f = open("autoremotedevices.txt","r")
+    devlist = f.read().split("\n")
+    return devlist
+    f.close()
+    
 def received_request(received):
     f = open("autoremotedevices.txt","r")
     devlist = f.read().split("\n")
@@ -269,7 +273,8 @@ def received_request(received):
 
     if received["communication_base_params"]["type"] == "Notification":
         notification(received)
-        
+
+    f.close()
     print received
 
 def notification(received):
@@ -351,6 +356,17 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
 
+def print_serverinfo():
+    print color(yellow,"Server is running.")
+    print color(yellow,"Supported commands:")
+    print color(yellow,"\t\t- Send messages to devices \t- '[device] [message]'")
+    print color(yellow,"\t\t- Register new device      \t- 'registerdevice'")
+    print color(yellow,"\t\t- Exit autoremote          \t- 'q / quit'")
+    print color(yellow,"Registered devices:")
+    devlist = load_devices()
+    for i in range(0, len(devlist)-1, 2):
+        print color(yellow,"\t\t- "+devlist[i])
+            
 # *************************** Main code below this point *************************** 
 
 # Define needed objects 
@@ -422,18 +438,22 @@ def http_server(HOST_NAME, PORT_NUMBER):
             
 
 if __name__ == '__main__':
+    # Make a thread for the http server
     t = threading.Thread(target=http_server, args = (HOST_NAME,PORT_NUMBER))
     t.daemon = True
     t.start()
     # Wait for server to start
     time.sleep(3)
-    print color(yellow,"To stop server enter q/quit.")
-    print color(yellow,"After some work, the user should be able to send messages from here.")
+
+    while 1:
+        print_serverinfo()
     
-    indata = raw_input("You can send messages here: ")
-    if indata in ["q","quit"]:
-        print time.asctime(), "Autoremote server stops - Port: %s" % (PORT_NUMBER)
-        exit(-1)
+        indata = raw_input("")
+        if indata == "registerdevice":
+            register_new_device(host_name, dev, jsondata)
+        elif indata in ["q","quit"]:
+            print time.asctime(), "Autoremote server stops - Port: %s" % (PORT_NUMBER)
+            exit(-1)
 
 
 #http://icons.iconarchive.com/icons/osullivanluke/orb-os-x/512/OSX-icon.png
