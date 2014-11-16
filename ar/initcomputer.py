@@ -1,7 +1,6 @@
 import os
 import json
 
-from .json_objects import json_objects, jdefault
 from .getip import get_lanip, get_pubip
 from .register_device import register_updatedevice
 from .load_computer import load_computer

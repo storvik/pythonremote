@@ -15,7 +15,7 @@ def message_received(received, ardevice):
     if option[0] == "shellcommand":
         cmd = option[1:]
         response = "msg "+ardevice+" pythonremoteshellresp=:="+(subprocess.check_output(cmd, universal_newlines=True))
-        message_send(computer["sender"], response)
+        message_send(response)
         print(response)
     ####
     # Todo add rules for message received
