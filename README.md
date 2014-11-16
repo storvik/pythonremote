@@ -14,36 +14,47 @@ Notifications are displayed as system notifications and must contain title and t
 Optional fields: Icon and URL.
 
 Requirements
-============
+------------
 
-This script requires the following installed:
+The following must be installed via pip3 install:
 - requests
 - urllib
 - http.server
 
 Mac OSX:
-- [terminal-notifier](https://github.com/alloy/terminal-notifier). Install via gem install. 
+[terminal-notifier](https://github.com/alloy/terminal-notifier).
+```sh
+$ gem install terminal-notifier
+```
 
+Install
+-------
+Clone git repository.
+```sh
+$ git clone git@github.com:storsnik/pythonremote.git
+```
+Create symlink to somewhere in your path.
+```sh
+$ ln -s /path/to/pythonremote.py /path/to/PATH/pythonremote
+```
 
 Usage
-=====
-$autoremoteserver [optional arguments]
+-----
+```sh
+$ autoremoteserver [optional arguments]
+```
 
-Arguments:
-- help                      - Write help information
-- msg [recipient] [message] - Send message to registered device
-- regdevice                 - Register new device(s)
-- reset                     - Delete config files(autoremote.json & autoremotedevices.txt
-- resetdevice               - Delete devices file(autoremotedevices.txt)
-
-Thanks to
-=========
-
-João Dia for some much needed help with development.
+|Arguments                  | Description                                                  |
+|---------------------------|--------------------------------------------------------------|
+| help                      | Write help information                                       |
+| msg [recipient] [message] | Send message to registered device                            |
+| regdevice                 | Register new device(s)                                       |
+| reset                     | Delete config files(autoremote.json & autoremotedevices.txt  |
+| resetdevice               | Delete devices file(autoremotedevices.txt)                   |
 
 
 Project status
-==============
+--------------
 
 What does it do:
 - Asks user for needed data on initial run. This is saved in a json config file.
@@ -60,3 +71,9 @@ What must be improved/fixed/added:
 - If autoremote request doesn't contain message a nasty error is printed.
 - System for responding/reacting to a given message and adding/removing such actions.
 - Implement google API url shortener when registering a new device.
+
+Thanks to
+=========
+
+João Dia for some much needed help with development.
+
