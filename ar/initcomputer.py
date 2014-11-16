@@ -3,6 +3,7 @@ import json
 
 from .json_objects import json_objects, jdefault
 from .getip import get_lanip, get_pubip
+from .register_device import register_updatedevice
 from .color import color, green, red, yellow
 
 # Function for creating server data 
@@ -45,7 +46,7 @@ def initcomputer(dev, add, comm):
             except:
                 print(color(red,"ERROR writing autoremote.json..."))
                 exit(-1)
-            #register_device("https://autoremotejoaomgcd.appspot.com/", dev, jsondata)
+            register_updatedevice(dev.sender, jsondata)
 
     else:
         print(color(yellow,"Autoremote config json file doesnt exist."))

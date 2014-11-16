@@ -18,7 +18,7 @@ from .getip import get_lanip, get_pubip
 from .keygen import keygen
 from .initcomputer import initcomputer
 from .json_objects import json_objects, jdefault
-from .register_device import register_device, register_newdevice, register_sendtodevice
+from .register_device import register_device, register_newdevice, register_sendtodevice, register_updatedevice
 from .load_device import load_device
 from .request_received import request_received
 from .notification_received import notification_received
