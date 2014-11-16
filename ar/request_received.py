@@ -13,9 +13,9 @@ def request_received(received):
     else:
         print(color(red,"You just received something from unknown device!!"))
         print(color(red,"Device key: "+received["sender"]))
-
+        
     if received["communication_base_params"]["type"] == "Notification":
-        notification(received)
+        notification_received(received)
     elif received["communication_base_params"]["type"] == "Message":
         message_received(received)
         

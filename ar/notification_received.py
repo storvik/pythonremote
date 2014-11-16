@@ -1,3 +1,4 @@
+import sys
 import subprocess
 
 from .color import color, green, red, yellow

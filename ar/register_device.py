@@ -3,7 +3,7 @@ import requests
 import urllib
 
 from .gcm import Gcm_req
-from .color import color
+from .color import color, green, red, yellow
 from .load_device import load_device
 
 # Register new device to autoremotedevices.txt
