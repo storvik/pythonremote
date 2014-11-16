@@ -52,6 +52,9 @@ $ autoremoteserver [optional arguments]
 | reset                     | Delete config files(autoremote.json & autoremotedevices.txt  |
 | resetdevice               | Delete devices file(autoremotedevices.txt)                   |
 
+Pythonremote will divide incoming requests in **notifications** and **messages**.
+Messages containing `shellcommand [command]` will be excecuted on the pythonremote computer.
+Response of the shell command well be returned to autoremote device as `shellresponse=:=[response]`.
 
 Project status
 --------------
