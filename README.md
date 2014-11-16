@@ -9,10 +9,6 @@ The script is made to work with python 3.4 and tested on a MacBook Pro Yosemite.
 
 [AutoRemote for Android (Google PlayStore)](https://play.google.com/store/apps/details?id=com.joaomgcd.autoremote&hl=de)
 
-Notification support for Mac OS X.
-Notifications are displayed as system notifications and must contain title and text.
-Optional fields: Icon and URL.
-
 Requirements
 ------------
 
@@ -53,8 +49,16 @@ $ autoremoteserver [optional arguments]
 | resetdevice               | Delete devices file(autoremotedevices.txt)                   |
 
 Pythonremote will divide incoming requests in **notifications** and **messages**.
+
+### Messages
 Messages containing `shellcommand [command]` will be excecuted on the pythonremote computer.
 Response of the shell command well be returned to autoremote device as `shellresponse=:=[response]`.
+Yet to come: a way to add own actions for specified messages.
+
+### Notifications
+Notification support only for Mac OS X, other systems coming soon.
+Notifications are displayed as system notifications and must contain title and text.
+Optional fields: Icon and URL, whereas the specified URL will be opened upon notification click. 
 
 Project status
 --------------
