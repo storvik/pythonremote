@@ -5,9 +5,10 @@ import urllib
 from .gcm import Gcm_req
 from .color import color, green, red, yellow
 from .load_device import load_device
+from .load_computer import load_computer
 
 # Register new device to autoremotedevices.txt
-def register_device(host_name, dev, jsondata):
+def register_device(host_name):
     # Checking for devices in autoremotedevices.txt
     # This file contains all registered devices (phone,tablet,etc)
     if os.path.isfile("autoremotedevices.txt"):
@@ -16,31 +17,34 @@ def register_device(host_name, dev, jsondata):
         print(color(yellow,"Did not find any devices."))
         answr = input(color(yellow,"You want to add a device? [y/n] "))
         if answr in ['y','yes','Y','YES']:
-            register_newdevice(host_name,dev,jsondata)
+            register_newdevice(host_name)
                 
         else:
             print(color(red,"autoremote is useless with no devices registered. Aborting..."))
             exit(-1)
 
 # Register new device
-def register_newdevice(host_name, dev, jsondata):
+def register_newdevice(host_name):
     fd = open("autoremotedevices.txt", "a+")                    # Opening device file
     # Todo: Check for existing name or key
     name = input("Enter name for new device: ")
     key = input("Enter personal key: ")
 
-    register_sendtodevice(key, dev.sender, jsondata)
+    
+    register_sendtodevice(key)
     
     fd.write(name+"\n"+key+"\n")                
     fd.close
     print(color(green,"Successfully added "+name+" to device list.."))
     answr = input(color(yellow,"You want to add another device? [y/n] "))
     if answr in ['y','yes','Y','YES']:
-        register_newdevice(host_name,dev,jsondata)
+        register_newdevice(host_name)
 
 # Register computer on device
-def register_sendtodevice(key, sender, jsondata):
-    gcm = Gcm_req(key, sender, jsondata)                   # GCM register device message
+def register_sendtodevice(key):
+    computer = load_computer()
+    
+    gcm = Gcm_req(key, computer["sender"], computer)                   # GCM register device message
     
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     r = requests.post("https://autoremotejoaomgcd.appspot.com/sendrequest", data=urllib.parse.urlencode(gcm.__dict__), headers=headers)
@@ -51,11 +55,11 @@ def register_sendtodevice(key, sender, jsondata):
         print(color(red,"Couldn't send request. Aborting..."))
         exit(-1)
 
-def register_updatedevice(sender, jsondata):
+def register_updatedevice():
     if os.path.isfile('autoremotedevices.txt'):
         devlist = ar.load_device()
         for i in range(1, len(devlist)-1, 2):
-            register_sendtodevice(devlist[i], sender, jsondata)
+            register_sendtodevice(devlist[i])
         print(color(green,"Updated information on devices.."))
     else:
         print(color(yellow,"No 'autoremotedevices.txt', nothing done.."))

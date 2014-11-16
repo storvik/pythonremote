@@ -48,11 +48,6 @@ def print_serverinfo():
 cnt = 1 # counter to get the right http post request
 
 if __name__ == '__main__':
-    # Define some needed objects
-    dev = ar.Device("","","","","","","","","","","","","")
-    add = ar.Additional("","","","")
-    comm = ar.Comm_params("","")
-
     host_name = "https://autoremotejoaomgcd.appspot.com/"
     option = ""
 
@@ -65,9 +60,9 @@ if __name__ == '__main__':
         elif option == "msg":
             # If message mode
             print("Message mode: Checking for configurations..")
-            jsondata, dev, add, comm = ar.initcomputer(dev, add, comm)
+            computer = ar.initcomputer()
             print("Found configurations. Sending message..")
-            ar.message_send(dev.sender, sys.argv[1:])
+            ar.message_send(sys.argv[1:])
             exit(-1)
 
         elif option == "reset":
@@ -95,18 +90,15 @@ if __name__ == '__main__':
     print(color(green,"Autoremote python plugin!!"))
 
     # At startup check if config file exist. If not, create it
-    jsondata, dev, add, comm = ar.initcomputer(dev, add, comm)
-
-    # Convert jsondata to objects
-    #dev, add, comm = json_to_objects(jsondata,dev,add,comm) Not needed after changing the init function
+    computer = ar.initcomputer()
 
     # Register new devices
-    ar.register_device(host_name, dev, jsondata)
+    ar.register_device(host_name)
     if option == "regdevice":
-        ar.register_new_device(host_name, dev, jsondata)
+        ar.register_new_device(host_name)
     
     HOST_NAME = ''
-    PORT_NUMBER = int(dev.port)
+    PORT_NUMBER = int(computer["port"])
     
     # Make a thread for the http server
     t = threading.Thread(target=server.http_server, args = (HOST_NAME,PORT_NUMBER))
@@ -121,12 +113,9 @@ if __name__ == '__main__':
         indata = input("")
         indata = indata.split(' ')
         if indata[0] == "registerdevice":
-            ar.register_newdevice(host_name, dev, jsondata)
+            ar.register_newdevice(host_name)
         elif indata[0] == "msg":
-            ar.message_send(dev.id, indata)
+            ar.message_send(indata)
         elif indata[0] in ["q","quit"]:
             print(time.asctime(), "Autoremote server stops - Port: %s" % (PORT_NUMBER))
             exit(-1)
-
-
-#http://icons.iconarchive.com/icons/osullivanluke/orb-os-x/512/OSX-icon.png

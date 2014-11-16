@@ -4,17 +4,20 @@ import requests
 
 from .message import Message
 from .load_device import load_device
+from .load_computer import load_computer
 from .color import color, green, red, yellow
 
-def message_send(sender, indata):
+def message_send(indata):
     print("Trying to send message..")
+
+    computer = load_computer()
     
     devlist = load_device()
     if indata[1] in devlist:
         key = devlist[devlist.index(indata[1])+1]
 
         msg_text = " ".join(indata[2:])
-        msg = Message(key, sender, msg_text)                   # GCM register device message
+        msg = Message(key, computer["id"], msg_text)                   # GCM register device message
         
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         r = requests.post("https://autoremotejoaomgcd.appspot.com/sendmessage", data=urllib.parse.urlencode(msg.__dict__), headers=headers)

@@ -1,9 +1,7 @@
 __all__ = ['add_device',
-           'device',
            'getip',
            'keygen',
            'initcomputer',
-           'json_objects',
            'register_device',
            'load_device',
            'request_received',
@@ -11,13 +9,12 @@ __all__ = ['add_device',
            'message_received',
            'color']
 
-from .device import Device, Additional, Comm_params
 from .gcm import Gcm_req
 from .add_device import add_device
 from .getip import get_lanip, get_pubip
 from .keygen import keygen
 from .initcomputer import initcomputer
-from .json_objects import json_objects, jdefault
+from .load_computer import load_computer
 from .register_device import register_device, register_newdevice, register_sendtodevice, register_updatedevice
 from .load_device import load_device
 from .request_received import request_received
