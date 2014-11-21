@@ -36,7 +36,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                     regex = re.compile("\{b'([^;]+)\':")
                     data = regex.findall(str(data))
                     data = data[0].replace('""', '"Null"') # This to avoid those nasty unicode strings in empty fields
-                    ar.request_received(json.loads(data))
+                    ar.request_received(config_path, json.loads(data))
                     cnt = 1
                 else:
                     cnt = cnt + 1

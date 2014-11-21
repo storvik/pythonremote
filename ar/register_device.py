@@ -1,4 +1,5 @@
 import os
+import string
 import requests
 import urllib
 
@@ -6,6 +7,7 @@ from .gcm import Gcm_req
 from .color import color, green, red, yellow
 from .load_device import load_device
 from .load_computer import load_computer
+from .unshorten_url import unshorten_url
 
 # Register new device to autoremotedevices.txt
 def register_device(config_path, host_name):
@@ -26,17 +28,29 @@ def register_newdevice(config_path, host_name):
     fd = open(config_path + 'autoremotedevices.txt', 'a+')                    # Opening device file
     # Todo: Check for existing name or key
     name = input("Enter name for new device: ")
-    key = input("Enter personal key: ")
+    key = input("Enter personal key or characters after goo.gl/: ")
 
-    
-    register_sendtodevice(key)
-    
-    fd.write(name+"\n"+key+"\n")                
+    if len(key) > 5:
+        key_raw = unshorten_url('https://goo.gl/' + key)
+        if key_raw == key:
+            print(color(red,"Could not unshorten URL. Try with regular key if problem continues.."))
+            answr = input(color(yellow,"You want to try again? [y/n] "))
+        else:
+            key = key_raw.split("key=")[1]
+            register_sendtodevice(config_path, key)
+            fd.write(name+"\n"+key+"\n")
+            print(color(green,"Successfully added "+name+" to device list.."))
+            answr = input(color(yellow,"You want to add another device? [y/n] "))
+
+    else:
+        register_sendtodevice(config_path, key)
+        fd.write(name+"\n"+key+"\n")
+        print(color(green,"Successfully added "+name+" to device list.."))
+        answr = input(color(yellow,"You want to add another device? [y/n] "))
+
     fd.close
-    print(color(green,"Successfully added "+name+" to device list.."))
-    answr = input(color(yellow,"You want to add another device? [y/n] "))
     if answr in ['y','yes','Y','YES']:
-        register_newdevice(host_name)
+        register_newdevice(config_path, host_name)
 
 # Register computer on device
 def register_sendtodevice(config_path, key):

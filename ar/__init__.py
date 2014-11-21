@@ -22,4 +22,5 @@ from .notification_received import notification_received
 from .message_received import message_received
 from .message import Message
 from .message_send import message_send
+from .unshorten_url import unshorten_url
 from .color import color
