@@ -1,14 +1,13 @@
 #!/usr/local/bin/python3
 
+import os
 import sys
 import threading
 import time
-import json
 import string
 
 import ar
 import server
-
 
 # Neat color function
 red = "31"
@@ -40,12 +39,13 @@ def print_serverinfo():
     print(color(yellow,"\t\t- List options             \t- 'help'"))
     print(color(yellow,"\t\t- Exit autoremote          \t- 'q / quit'"))
     print(color(yellow,"Registered devices:"))
-    devlist = ar.load_device()
+    devlist = ar.load_device(config_path)
     for i in range(0, len(devlist)-1, 2):
         print(color(yellow,"\t\t- "+devlist[i]))
 
-
-cnt = 1 # counter to get the right http post request
+# Define variables
+cnt = 1
+config_path = os.path.realpath(__file__)[:-15]
 
 if __name__ == '__main__':
     host_name = "https://autoremotejoaomgcd.appspot.com/"
@@ -60,15 +60,15 @@ if __name__ == '__main__':
         elif option == "msg":
             # If message mode
             print("Message mode: Checking for configurations..")
-            computer = ar.initcomputer()
+            computer = ar.initcomputer(config_path)
             print("Found configurations. Sending message..")
-            ar.message_send(sys.argv[1:])
+            ar.message_send(config_path, sys.argv[1:])
             exit(-1)
 
         elif option == "reset":
             answr = input(color(yellow, "Are you sure you want to reset configurations? [y/n] "))
             if answr in ['y','yes','Y','YES']:
-                subprocess.call(["rm","autoremote.json"])
+                subprocess.call(['rm', config_path + 'autoremote.json'])
                 print(color(green,"autoremote.json is deleted. Server reconfiguration required upon restart.."))
                 print(color(green,"autoremotedevices.txt is deleted. Device reconfiguration required upon restart.."))
             exit(-1)
@@ -76,26 +76,25 @@ if __name__ == '__main__':
         elif option == "resetdevice":
             answr = input(color(yellow, "Are you sure you want to reset devices? [y/n] "))
             if answr in ['y','yes','Y','YES']:
-                subprocess.call(["rm","autoremotedevices.txt"])
+                subprocess.call(['rm', config_path + 'autoremotedevices.txt'])
                 print(color(green,"autoremotedevices.txt is deleted. Device reconfiguration required upon restart.."))
             exit(-1)
+
+        elif option == 'regdevice':
+                ar.register_device(config_path, host_name)
+                ar.register_new_device(config_path, host_name)
 
         else:
             print(color(red,"Unknown input parameter.. 'autoremoteserver help' for options and usage!"))
             exit(-1)
 
-    # Regdevice will be checked for further down. 
-    # This because it depends on other key data
-
     print(color(green,"Autoremote python plugin!!"))
 
     # At startup check if config file exist. If not, create it
-    computer = ar.initcomputer()
+    computer = ar.initcomputer(config_path)
 
     # Register new devices
-    ar.register_device(host_name)
-    if option == "regdevice":
-        ar.register_new_device(host_name)
+    ar.register_device(config_path, host_name)
     
     HOST_NAME = ''
     PORT_NUMBER = int(computer["port"])
@@ -113,9 +112,9 @@ if __name__ == '__main__':
         indata = input("")
         indata = indata.split(' ')
         if indata[0] == "registerdevice":
-            ar.register_newdevice(host_name)
+            ar.register_newdevice(config_path, host_name)
         elif indata[0] == "msg":
-            ar.message_send(indata)
+            ar.message_send(config_path, indata)
         elif indata[0] in ["q","quit"]:
             print(time.asctime(), "Autoremote server stops - Port: %s" % (PORT_NUMBER))
             exit(-1)

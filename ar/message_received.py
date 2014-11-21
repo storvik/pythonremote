@@ -5,17 +5,17 @@ from .load_computer import load_computer
 from .color import color, green, red, yellow
 
 # If massage, check for saved response
-def message_received(received, ardevice):
+def message_received(config_path, received, ardevice):
     print(color(yellow,"Received message. Checking for saved response."))
     message = received['message']
     
-    computer = load_computer()
+    computer = load_computer(config_path)
     
     option = message.split(" ")
     if option[0] == "shellcommand":
         cmd = option[1:]
         response = "msg "+ardevice+" pythonremoteshellresp=:="+(subprocess.check_output(cmd, universal_newlines=True))
-        message_send(response)
+        message_send(config_path, response)
         print(response)
     ####
     # Todo add rules for message received

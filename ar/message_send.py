@@ -7,12 +7,12 @@ from .load_device import load_device
 from .load_computer import load_computer
 from .color import color, green, red, yellow
 
-def message_send(indata):
+def message_send(config_path, indata):
     print("Trying to send message..")
 
-    computer = load_computer()
+    computer = load_computer(config_path)
     indata = indata.split(" ")
-    devlist = load_device()
+    devlist = load_device(config_path)
     if indata[1] in devlist:
         key = devlist[devlist.index(indata[1])+1]
 
@@ -20,7 +20,7 @@ def message_send(indata):
         msg = Message(key, computer["id"], msg_text)                   # GCM register device message
         
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        r = requests.post("https://autoremotejoaomgcd.appspot.com/sendmessage", data=urllib.parse.urlencode(msg.__dict__), headers=headers)
+        r = requests.post('https://autoremotejoaomgcd.appspot.com/sendmessage', data=urllib.parse.urlencode(msg.__dict__), headers=headers)
     
         if r.text == "OK":                                         # If message is sent
             print(color(green,"Message successfully sent to device!"))

@@ -7,11 +7,11 @@ from .load_computer import load_computer
 from .color import color, green, red, yellow
 
 # Function for creating server data 
-def initcomputer():
+def initcomputer(config_path):
     if os.path.isfile("autoremote.json"):
         print(color(green,"Autoremote config json file exists. Continuing server startup.."))
         
-        computer = load_computer()
+        computer = load_computer(config_path)
         
         lanip = get_lanip()
         pubip = get_pubip()
@@ -34,7 +34,7 @@ def initcomputer():
         # Write json to file
         if change == "true":
             try: 
-                fd = open('autoremote.json', 'w+')
+                fd = open(config_path + 'autoremote.json', 'w+')
                 fd.write(json.dumps(computer, default=jdefault, indent=4))
                 fd.close()
             except:
@@ -59,7 +59,7 @@ def initcomputer():
                 
             # Write json to file
             try: 
-                fd = open("autoremote.json", "w")
+                fd = open(config_path + 'autoremote.json', 'w')
                 fd.write(json.dumps(computer, default=jdefault, indent=4))
                 fd.close()
             except:
