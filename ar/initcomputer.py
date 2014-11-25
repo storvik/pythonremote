@@ -41,13 +41,13 @@ def initcomputer(config_path):
             except:
                 print(color(red,"ERROR writing autoremote.json..."))
                 exit(-1)
-            register_updatedevice()
+            register_updatedevice(config_path)
 
     else:
         print(color(yellow,"Autoremote config json file doesnt exist."))
         answr = input(color(yellow, "Do you want to configure this device? [y/n] "))
         if answr in ['y','yes','Y','YES']:
-            computer = json.loads('{"type":"plugin","port":"1820","haswifi":"True","ttl":"null","collapsekey":"null","additional":{"iconUrl":"http://icons.iconarchive.com/icons/osullivanluke/orb-os-x/512/OSX-icon.png","type":"PythonPlugin by Storvik","canreceivefiles":"True","canReceiveNotification":"True"},"communication_base_parameters":{"type":"RequestSendRegistration"}}')
+            computer = json.loads('{"type":"plugin","port":"1820","haswifi":"True","ttl":"0","collapsekey":"0","additional":{"iconUrl":"http://icons.iconarchive.com/icons/osullivanluke/orb-os-x/512/OSX-icon.png","type":"PythonPlugin by Storvik","canreceivefiles":"True","canReceiveNotifications":"True"},"communication_base_params":{"type":"RequestSendRegistration"}}')
             # Ask for needed parameters
             computer["id"] = input("Id: ")
             computer["name"] = input("Name: ")
@@ -56,15 +56,16 @@ def initcomputer(config_path):
             computer["sender"] = input("Sender: ")
             computer["key"] = keygen(30)
         
-            computer["communication_base_param"]["sender"] = computer["sender"]
+            computer["communication_base_params"]["sender"] = computer["sender"]
                 
             # Write json to file
             try: 
-                fd = open(config_path + 'autoremote.json', 'w')
-                fd.write(json.dumps(computer, default=jdefault, indent=4))
+                fd = open(config_path + 'autoremote.json', 'w+')
+                fd.write(json.dumps(computer, indent=4))
                 fd.close()
             except:
                 print(color(red,"ERROR writing autoremote.json..."))
                 exit(-1)
-                
+            register_updatedevice(config_path)
+        
     return computer

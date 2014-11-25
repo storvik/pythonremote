@@ -20,7 +20,7 @@ def message_send(config_path, indata):
         
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         r = requests.post('https://autoremotejoaomgcd.appspot.com/sendmessage', data=urllib.parse.urlencode(msg.__dict__), headers=headers)
-    
+
         if r.text == "OK":                                         # If message is sent
             print(color(green,"Message successfully sent to device!"))
         else:

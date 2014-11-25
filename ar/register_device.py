@@ -57,10 +57,13 @@ def register_sendtodevice(config_path, key):
     computer = load_computer(config_path)
     
     gcm = Gcm_req(key, computer["sender"], computer)                   # GCM register device message
+
+    print(gcm.__dict__)
+    print(urllib.parse.urlencode(gcm.__dict__))
     
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     r = requests.post("https://autoremotejoaomgcd.appspot.com/sendrequest", data=urllib.parse.urlencode(gcm.__dict__), headers=headers)
-    
+
     if r.text == "OK":                                         # If message is sent
         print(color(green,"Register device request successfully sent to device!"))
     else:
@@ -69,9 +72,9 @@ def register_sendtodevice(config_path, key):
 
 def register_updatedevice(config_path):
     if os.path.isfile('autoremotedevices.txt'):
-        devlist = ar.load_device(config_path)
+        devlist = load_device(config_path)
         for i in range(1, len(devlist)-1, 2):
-            register_sendtodevice(devlist[i])
+            register_sendtodevice(config_path,devlist[i])
         print(color(green,"Updated information on devices.."))
     else:
         print(color(yellow,"No 'autoremotedevices.txt', nothing done.."))
