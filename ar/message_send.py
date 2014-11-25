@@ -11,7 +11,6 @@ def message_send(config_path, indata):
     print("Trying to send message..")
 
     computer = load_computer(config_path)
-    indata = indata.split(" ")
     devlist = load_device(config_path)
     if indata[1] in devlist:
         key = devlist[devlist.index(indata[1])+1]

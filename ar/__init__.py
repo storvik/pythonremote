@@ -1,12 +1,17 @@
-__all__ = ['add_device',
+__all__ = ['gcm',
+           'add_device',
            'getip',
            'keygen',
            'initcomputer',
+           'load_computer',
            'register_device',
            'load_device',
            'request_received',
            'notification_received',
            'message_received',
+           'message',
+           'message_send'
+           'unshorten_url',
            'color']
 
 from .gcm import Gcm_req

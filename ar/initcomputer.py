@@ -50,8 +50,8 @@ def initcomputer(config_path):
             # Ask for needed parameters
             computer["id"] = input("Id: ")
             computer["name"] = input("Name: ")
-            computer["localip"] = get_lan_ip()
-            computer["publicip"] = get_pub_ip()
+            computer["localip"] = get_lanip()
+            computer["publicip"] = get_pubip()
             computer["sender"] = input("Sender: ")
             computer["key"] = keygen(30)
         

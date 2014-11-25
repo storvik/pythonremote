@@ -110,7 +110,7 @@ if __name__ == '__main__':
         print_serverinfo()
     
         indata = input("")
-        indata = indata.split(' ')
+        indata = indata.split(" ")
         if indata[0] == "registerdevice":
             ar.register_newdevice(config_path, host_name)
         elif indata[0] == "msg":
