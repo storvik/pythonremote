@@ -4,6 +4,7 @@ import json
 from .getip import get_lanip, get_pubip
 from .register_device import register_updatedevice
 from .load_computer import load_computer
+from .keygen import keygen
 from .color import color, green, red, yellow
 
 # Function for creating server data 
