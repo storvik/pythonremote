@@ -47,7 +47,7 @@ def initcomputer(config_path):
         print(color(yellow,"Autoremote config json file doesnt exist."))
         answr = input(color(yellow, "Do you want to configure this device? [y/n] "))
         if answr in ['y','yes','Y','YES']:
-            computer = json.loads('{"type":"plugin","port":"1820","haswifi":"True","ttl":"0","collapsekey":"0","additional":{"iconUrl":"http://icons.iconarchive.com/icons/osullivanluke/orb-os-x/512/OSX-icon.png","type":"PythonPlugin by Storvik","canreceivefiles":"True","canReceiveNotifications":"True"},"communication_base_params":{"type":"RequestSendRegistration"}}')
+            computer = json.loads('{"type":"plugin","port":"1820","haswifi":"True","ttl":"0","collapsekey":"0","additional":{"type":"PythonPlugin by Storvik","canreceivefiles":"True","canReceiveNotifications":"True"},"communication_base_params":{"type":"RequestSendRegistration"}}')
             # Ask for needed parameters
             computer["id"] = input("Id: ")
             computer["name"] = input("Name: ")
@@ -57,7 +57,17 @@ def initcomputer(config_path):
             computer["key"] = keygen(30)
         
             computer["communication_base_params"]["sender"] = computer["sender"]
-                
+
+            icon = input("Icon(mac/linux/windows or URL to icon): ")
+            if icon == "mac":
+                icon = "http://icons.iconarchive.com/icons/osullivanluke/orb-os-x/512/OSX-icon.png"
+            elif icon == "linux":
+                icon = "http://icons.iconarchive.com/icons/tatice/operating-systems/256/Linux-icon.png"
+            elif icon == "windows":
+                icon = "http://icons.iconarchive.com/icons/benjigarner/softdimension/256/Windows-icon.png"
+
+            computer["additional"]["iconUrl"] = icon
+            
             # Write json to file
             try: 
                 fd = open(config_path + 'autoremote.json', 'w+')
