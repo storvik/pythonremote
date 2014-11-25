@@ -1,4 +1,5 @@
 import string
+import random
 
 # Function for generating device key
 def keygen(size=20, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
