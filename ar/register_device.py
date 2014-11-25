@@ -58,9 +58,6 @@ def register_sendtodevice(config_path, key):
     
     gcm = Gcm_req(key, computer["sender"], computer)                   # GCM register device message
 
-    print(gcm.__dict__)
-    print(urllib.parse.urlencode(gcm.__dict__))
-    
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     r = requests.post("https://autoremotejoaomgcd.appspot.com/sendrequest", data=urllib.parse.urlencode(gcm.__dict__), headers=headers)
 
