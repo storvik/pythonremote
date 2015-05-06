@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         if option == "help":
             print_help()
             exit(-1)
-            
+
         elif option == "msg":
             # If message mode
             print("Message mode: Checking for configurations..")
@@ -72,7 +72,7 @@ if __name__ == '__main__':
                 print(color(green,"autoremote.json is deleted. Server reconfiguration required upon restart.."))
                 print(color(green,"autoremotedevices.txt is deleted. Device reconfiguration required upon restart.."))
             exit(-1)
-            
+
         elif option == "resetdevice":
             answr = input(color(yellow, "Are you sure you want to reset devices? [y/n] "))
             if answr in ['y','yes','Y','YES']:
@@ -85,7 +85,7 @@ if __name__ == '__main__':
                 ar.register_new_device(config_path, host_name)
 
         else:
-            print(color(red,"Unknown input parameter.. 'autoremoteserver help' for options and usage!"))
+            print(color(red,"Unknown input parameter.. 'pythonremote help' for options and usage!"))
             exit(-1)
 
     print(color(green,"Autoremote python plugin!!"))
@@ -95,10 +95,10 @@ if __name__ == '__main__':
 
     # Register new devices
     ar.register_device(config_path, host_name)
-    
+
     HOST_NAME = ''
     PORT_NUMBER = int(computer["port"])
-    
+
     # Make a thread for the http server
     t = threading.Thread(target=server.http_server, args = (HOST_NAME,PORT_NUMBER))
     t.daemon = True
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 
     while 1:
         print_serverinfo()
-    
+
         indata = input("")
         indata = indata.split(" ")
         if indata[0] == "registerdevice":

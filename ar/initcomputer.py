@@ -9,7 +9,7 @@ from .color import color, green, red, yellow
 
 # Function for creating server data 
 def initcomputer(config_path):
-    if os.path.isfile("autoremote.json"):
+    if os.path.isfile(config_path+"autoremote.json"):
         print(color(green,"Autoremote config json file exists. Continuing server startup.."))
         
         computer = load_computer(config_path)

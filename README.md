@@ -84,3 +84,27 @@ Thanks to
 
 João Dia for some much needed help with development.
 
+Installing kivy on Mac
+======================
+First step is to install dependencies.
+Must have Homebrew installed.
+For installing pygame:
+```sh
+$ brew install sdl sdl_image sdl_mixer sdl_ttf portmidi
+$ Install XQuartz - http://xquartz.macosforge.org
+$ brew tap homebrew/headonly
+$ brew install --HEAD smpeg
+$ brew install python (needed to install mercurial)
+$ brew install mercurial
+$ pip3 install hg+http://bitbucket.org/pygame/pygame
+```
+Kivy needs cython and gstreamer to be installer.
+Note that the latest cython wint work:
+```sh
+$ brew install gstreamer
+$ pip3 install http://cython.org/release/Cython-0.20.2.tar.gz
+```
+Then you are ready to install Kivy for python 3:
+```sh
+$ pip3 install git+https://github.com/kivy/kivy.git@master
+```
