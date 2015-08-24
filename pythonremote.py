@@ -5,6 +5,7 @@ import sys
 import threading
 import time
 import string
+import argparse
 
 import ar
 import server
@@ -15,20 +16,6 @@ yellow = "33"
 green = "32"
 def color(this_color, string):
     return "\033[" + this_color + "m" + string + "\033[0m"
-
-# Print help information
-def print_help():
-    print("Autoremote python plugin by Storvik")
-    print("Usage:\tautoremoteserver\t[optional arguments]")
-    print("\t\t\t\t- help                                   \t- Write help information")
-    print("\t\t\t\t- msg [device] [message]                 \t- Send a message to device")
-    print("\t\t\t\t- notification [device] [title] [message]\t- Send a notification to device")
-    print("\t\t\t\t- regdevice                              \t- Register new device(s)")
-    print("\t\t\t\t- reset                                  \t- Delete config files(autoremote.json & autoremotedevices.txt")
-    print("\t\t\t\t- resetdevice                            \t- Delete devices file(autoremotedevices.txt)\n")
-    print("This is a python autoremote plugin. it is based on the autoremote c# program and autoremote android app by Joao Dias. \nThanks to:")
-    print("\t- Joao Dias for some much needed help with development")
-    print("")
 
 # Print help information server view
 def print_serverinfo():
@@ -51,39 +38,46 @@ if __name__ == '__main__':
     host_name = "https://autoremotejoaomgcd.appspot.com/"
     option = ""
 
-    if len(sys.argv) > 1:
-        option = sys.argv[1]
-        if option == "help":
-            print_help()
-            exit(-1)
+    # ArgParser
+    parser = argparse.ArgumentParser(
+        description="Pythonremote, an autoremote implementation in python. If no command line arguments are specified the server will perform a normal startup.",
+        epilog="Based on the autoremote C# program and autoremote android app by Joao Dias.",
+        formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=45)) # Wider help text
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s 2.0')
+    parser.add_argument('--message', nargs=2, metavar=('<device>','<message>'), help="send specified message to given device")
+    parser.add_argument('--notification', nargs=3, metavar=('<device>', '<title>', '<message>'), help="send specified notification to given device (NOT WORKING YET)")
+    parser.add_argument('--reset', help="resets pythonremote by deleting configuration files(keeps registered devices)", action="store_true")
+    parser.add_argument('--resetdevice', help="resets registered devices by deleting device file", action="store_true")
+    parser.add_argument('--regdevice', help="register new device and add it to device file", action="store_true")
 
-        elif option == "msg":
-            # If message mode
+    args = parser.parse_args()
+
+    if len(sys.argv) > 1:
+        if args.message:
             print("Message mode: Checking for configurations..")
             computer = ar.initcomputer(config_path)
             print("Found configurations. Sending message..")
             ar.message_send(config_path, sys.argv[1:])
             exit(-1)
-
-        elif option == "reset":
+        elif args.notification:
+            print("Notification mode not done yet!")
+            exit(-1)
+        elif args.reset:
             answr = input(color(yellow, "Are you sure you want to reset configurations? [y/n] "))
             if answr in ['y','yes','Y','YES']:
                 subprocess.call(['rm', config_path + 'autoremote.json'])
                 print(color(green,"autoremote.json is deleted. Server reconfiguration required upon restart.."))
                 print(color(green,"autoremotedevices.txt is deleted. Device reconfiguration required upon restart.."))
             exit(-1)
-
-        elif option == "resetdevice":
+        elif args.resetdevice:
             answr = input(color(yellow, "Are you sure you want to reset devices? [y/n] "))
             if answr in ['y','yes','Y','YES']:
                 subprocess.call(['rm', config_path + 'autoremotedevices.txt'])
                 print(color(green,"autoremotedevices.txt is deleted. Device reconfiguration required upon restart.."))
             exit(-1)
-
-        elif option == 'regdevice':
-                ar.register_device(config_path, host_name)
-                ar.register_new_device(config_path, host_name)
-
+        elif args.regdevice:
+            ar.register_device(config_path, host_name)
+            ar.register_new_device(config_path, host_name)
         else:
             print(color(red,"Unknown input parameter.. 'pythonremote help' for options and usage!"))
             exit(-1)
