@@ -1,9 +1,9 @@
 pythonremote
 ============
 
-Python port of Autoremote plugin by João Dias. 
-This python script tries to utilize autoremote android app in every platform. 
-The script is made to work with python 3.4 and tested on a MacBook Pro Yosemite. 
+Python port of Autoremote plugin by João Dias.
+This python script tries to utilize autoremote android app in every platform.
+The script is made to work with python 3.4 and tested on a MacBook Pro Yosemite.
 
 [AutoApps (joaoapps.com)](http://joaoapps.com/)
 
@@ -37,16 +37,17 @@ $ ln -s /path/to/pythonremote.py /path/to/PATH/pythonremote
 Usage
 -----
 ```sh
-$ autoremoteserver [optional arguments]
+$ pythonremote [optional arguments]
 ```
 
-|Arguments                  | Description                                                  |
-|---------------------------|--------------------------------------------------------------|
-| help                      | Write help information                                       |
-| msg [recipient] [message] | Send message to registered device                            |
-| regdevice                 | Register new device(s)                                       |
-| reset                     | Delete config files(autoremote.json & autoremotedevices.txt  |
-| resetdevice               | Delete devices file(autoremotedevices.txt)                   |
+|Arguments                                | Description                                                  |
+|-----------------------------------------|--------------------------------------------------------------|
+| help                                    | Write help information                                       |
+| msg [recipient] [message]               | Send message to registered device                            |
+| notification [recipient] [title] [text] | Send notification to registered device                       |
+| regdevice                               | Register new device(s)                                       |
+| reset                                   | Delete config files(autoremote.json & autoremotedevices.txt  |
+| resetdevice                             | Delete devices file(autoremotedevices.txt)                   |
 
 Pythonremote will divide incoming requests in **notifications** and **messages**.
 
@@ -58,7 +59,7 @@ Yet to come: a way to add own actions for specified messages.
 ### Notifications
 Notification support only for Mac OS X, other systems coming soon.
 Notifications are displayed as system notifications and must contain title and text.
-Optional fields: Icon and URL, whereas the specified URL will be opened upon notification click. 
+Optional fields: Icon and URL, whereas the specified URL will be opened upon notification click.
 
 Project status
 --------------
@@ -66,45 +67,20 @@ Project status
 What does it do:
 - Asks user for needed data on initial run. This is saved in a json config file.
 - If json config file exists => read file and check if ip adresses have to be updated.
-- Asks user for a device if autoremotedevices.txt doesn't exist. 
+- Asks user for a device if autoremotedevices.txt doesn't exist.
 - Starts the server.
 - Prints autoremote requests to screen when received.
 - Registers with notification support.
 - Notifications must have title and text. URL and icon is optional.
 - Supports registering of multiple devices.
 - Send message to registered devices.
+- Send notifications to registered devices.
 
 What must be improved/fixed/added:
 - If autoremote request doesn't contain message a nasty error is printed.
 - System for responding/reacting to a given message and adding/removing such actions.
-- Implement google API url shortener when registering a new device.
 
 Thanks to
 =========
 
 João Dia for some much needed help with development.
-
-Installing kivy on Mac
-======================
-First step is to install dependencies.
-Must have Homebrew installed.
-For installing pygame:
-```sh
-$ brew install sdl sdl_image sdl_mixer sdl_ttf portmidi
-$ Install XQuartz - http://xquartz.macosforge.org
-$ brew tap homebrew/headonly
-$ brew install --HEAD smpeg
-$ brew install python (needed to install mercurial)
-$ brew install mercurial
-$ pip3 install hg+http://bitbucket.org/pygame/pygame
-```
-Kivy needs cython and gstreamer to be installer.
-Note that the latest cython wint work:
-```sh
-$ brew install gstreamer
-$ pip3 install http://cython.org/release/Cython-0.20.2.tar.gz
-```
-Then you are ready to install Kivy for python 3:
-```sh
-$ pip3 install git+https://github.com/kivy/kivy.git@master
-```
