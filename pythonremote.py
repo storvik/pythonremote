@@ -60,7 +60,10 @@ if __name__ == '__main__':
             ar.message_send(config_path, sys.argv[1:])
             exit(-1)
         elif args.notification:
-            print("Notification mode not done yet!")
+            print("Notification mode: Checking for configurations..")
+            computer = ar.initcomputer(config_path)
+            print("Found configurations. Sending message..")
+            ar.notification_send(config_path, sys.argv[1:])
             exit(-1)
         elif args.reset:
             answr = input(color(yellow, "Are you sure you want to reset configurations? [y/n] "))
@@ -101,9 +104,9 @@ if __name__ == '__main__':
     time.sleep(3)
 
     while 1:
-        print_serverinfo()
+        print_indata()
 
-        indata = input("")
+        serverinfo = input("")
         indata = indata.split(" ")
         if indata[0] == "registerdevice":
             ar.register_newdevice(config_path, host_name)
