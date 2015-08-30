@@ -104,9 +104,9 @@ if __name__ == '__main__':
     time.sleep(3)
 
     while 1:
-        print_indata()
+        print_serverinfo()
 
-        serverinfo = input("")
+        indata = input("")
         indata = indata.split(" ")
         if indata[0] == "registerdevice":
             ar.register_newdevice(config_path, host_name)
