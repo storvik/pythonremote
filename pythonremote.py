@@ -68,16 +68,16 @@ if __name__ == '__main__':
         elif args.reset:
             answr = input(color(yellow, "Are you sure you want to reset configurations? [y/n] "))
             if answr in ['y','yes','Y','YES']:
-                subprocess.call(['rm', config_path + 'autoremote.json'])
+                os.remove(config_path + 'autoremote.json')
                 print(color(green,"autoremote.json is deleted. Server reconfiguration required upon restart.."))
                 print(color(green,"autoremotedevices.txt is deleted. Device reconfiguration required upon restart.."))
-            exit(-1)
+                exit(-1)
         elif args.resetdevice:
             answr = input(color(yellow, "Are you sure you want to reset devices? [y/n] "))
             if answr in ['y','yes','Y','YES']:
-                subprocess.call(['rm', config_path + 'autoremotedevices.txt'])
+                os.remove(config_path + 'autoremotedevices.txt')
                 print(color(green,"autoremotedevices.txt is deleted. Device reconfiguration required upon restart.."))
-            exit(-1)
+                exit(-1)
         elif args.regdevice:
             ar.register_device(config_path, host_name)
             ar.register_new_device(config_path, host_name)
